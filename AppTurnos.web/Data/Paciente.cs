@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
@@ -60,22 +61,111 @@ namespace AppTurnos.web.Data
 
         public Paciente ObtenerUno( int id)
         {
-            return null;
+            SqlConnection con = new SqlConnection(connectionString);
+
+            string selectSQL = "Id, Nombre, Apellido, TipoDocumento, NumeroDocumento, NumeroAfiliado from Pacientes where Id = " + Id;
+            con.Open();
+
+            SqlCommand cmd = new SqlCommand(selectSQL, con);
+
+            SqlDataReader dr = cmd.ExecuteReader();
+
+            Paciente Paciente = new Paciente();
+
+            if (dr != null)
+            {
+                while (dr.Read())
+                {
+
+
+                    Paciente.Id = Convert.ToInt32(dr["Id"]);
+                    Paciente.Nombre = dr["Nombre"].ToString();
+                    Paciente.Apellido = dr["Apellido"].ToString();
+                    Paciente.TipoDocumento = dr["TipoDocumento"].ToString();
+                    Paciente.NumeroDocumento = Convert.ToInt32(dr["NumeroDocumento"]);
+                    Paciente.NumeroAfiliado = dr["NumeroAfiliado"].ToString();
+                }
+            }
+
+            return Paciente;
         }
 
         public void Agregar(Paciente paciente)
         {
-            
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    SqlCommand cmd = new SqlCommand("Agregar", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add(new SqlParameter("@Nombre", paciente.Nombre));
+                    cmd.Parameters.Add(new SqlParameter("@Apellido", paciente.Apellido));
+                    cmd.Parameters.Add(new SqlParameter("@TipoDocumento", paciente.TipoDocumento));
+                    cmd.Parameters.Add(new SqlParameter("@NumeroDocumento", paciente.NumeroDocumento));
+                    cmd.Parameters.Add(new SqlParameter("@NumeroAfiliado", paciente.NumeroAfiliado));
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void Modificar(Paciente paciente)
         {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    SqlCommand cmd = new SqlCommand("Modificar", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
+                    cmd.Parameters.Add(new SqlParameter("@Id", paciente.Id));
+                    cmd.Parameters.Add(new SqlParameter("@Nombre", paciente.Nombre));
+                    cmd.Parameters.Add(new SqlParameter("@Apellido", paciente.Apellido));
+                    cmd.Parameters.Add(new SqlParameter("@TipoDocumento", paciente.TipoDocumento));
+                    cmd.Parameters.Add(new SqlParameter("@NumeroDocumento", paciente.NumeroDocumento));
+                    cmd.Parameters.Add(new SqlParameter("@NumeroAfiliado", paciente.NumeroAfiliado));
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void Eliminar(int id)
         {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    SqlCommand cmd = new SqlCommand("Eliminar", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
+                    cmd.Parameters.Add(new SqlParameter("@Id", Id));
+
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }
